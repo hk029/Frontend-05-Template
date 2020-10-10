@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <style>
+            .light {
+                border-radius: 50%;
+                height: 100px;
+                width: 100px;
+                display: inline-block;
+                margin-right: 10px;
+            }
+            .red {
+                background: red;
+            }
+            .yellow {
+                background: yellow;
+            }
+            .green {
+                background: green;
+            }
+            .off {
+                background: gray;
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+            <span class="red light off"></span>
+            <span class="yellow light off"></span>
+            <span class="green light off"></span>
+        </div>
+    </body>
+    <script>
+        const lights = document.querySelectorAll(".light");
+        const duration = [5, 2, 10];
+        const current = 0;
+        let timer = null;
+
+        const resetLight = () => {
+            lights.forEach(light => light.classList.add('off'));
+        }
+
+        const switchLight = (idx) => {
+            if (timer) {
+                clearTimeout(timer);
+            }
+            // 将当前灯设置成亮灯状态
+            resetLight();
+            lights[idx].classList.remove('off');
+            // timeout后切换到下一个灯
+            timer = setTimeout(() => switchLight((idx + 1) % 3), duration[idx] * 1000);
+        };
+
+        switchLight(0);
+    </script>
+</html>
