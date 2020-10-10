@@ -14,11 +14,15 @@ const CLASS_MAP = {
 };
 
 const PATTERN = [
-    [0, 0, 1],
-    [0, 2, 0],
+    [0, 0, 0],
+    [0, 0, 0],
     [0, 0, 0],
 ];
 
+// 设置用户走的类型
+let user = C.CIRCLE;
+
+// 当前走的类型
 let current = C.CIRCLE;
 
 
@@ -203,37 +207,59 @@ const toggleClass = (cell) => {
 
 /**
  * 移动子
- * @param {*} ev 
+ * @param {*} target
  */
-const move = (ev) => {
-    const { target } = ev;
-    // 说明点击的是cell
-    if (target.dataset.point) {
-        // 获取当前点击的坐标
-        const { dataset: { point } } = target;
-        const [x, y] = point.split('-')
-        // 把当前的区域设置成对应的落子符号
-        // 通过添加class可以完成换字，避免重新渲染
-        if (toggleClass(target)) {
-            PATTERN[x][y] = current;
-            if (isWin(PATTERN, current)) {
-                alert(`${CLASS_MAP[current]}赢了`)
-                removeEvent();
-                return;
-            }
-            // 交换落子
-            current = exchange(current);
-            // 判交换后是否可以胜利
-            if (willWin(PATTERN, current)) {
-                console.log(`${CLASS_MAP[current]}将要赢了`)
-            }
+const move = (target) => {
+    // 获取当前点击的坐标
+    const { dataset: { point } } = target;
+    // 把当前的区域设置成对应的落子符号
+    // 通过添加class可以完成换字，避免重新渲染
+    const [x, y] = point.split('-')
+    if (toggleClass(target)) {
+        PATTERN[x][y] = current;
+        if (isWin(PATTERN, current)) {
+            alert(`${CLASS_MAP[current]}赢了`)
+            removeEvent();
+            return;
+        }
+        // 交换落子
+        current = exchange(current);
+        // 判交换后是否可以胜利
+        if (willWin(PATTERN, current)) {
+            console.log(`${CLASS_MAP[current]}将要赢了`)
+        }
+        // 如果当前走的不是用户，则自动落子
+        if (current !== user) {
+            autoMove(PATTERN, current);
         }
     }
 }
+/**
+ * 自动走子
+ * @param {*} ev 
+ */
 
-const addEvent = () => window.addEventListener('click', move);
+const autoMove = (pattern, color) => {
+    const { point } = bestChoice(pattern, color);
+    if (point) {
+        const [i, j] = point;
+        const target = [].slice.call(document.querySelectorAll('[data-point]')).find(v => v.dataset.point === `${i}-${j}`);
+        move(target);
+    }
+}
 
-const removeEvent = () => window.removeEventListener('click', move);
+const userMove = (ev) => {
+    const { target } = ev;
+    // 说明点击的是cell
+    if (target.dataset.point) {
+        move(target);
+    }
+}
+
+
+const addEvent = () => window.addEventListener('click', userMove);
+
+const removeEvent = () => window.removeEventListener('click', userMove);
 
 
 
@@ -241,7 +267,6 @@ const main = () => {
     const root = document.querySelector('#root');
     render(root);
     addEvent(root);
-    console.log(bestChoice(PATTERN, current));
 }
 
 window.onload = () => {
