@@ -1,7 +1,10 @@
-const SYMBOL = {
+const C = {
     EMPTY: 0,
     CROSS: 1,
     CIRCLE: 2,
+    PEACE: 0,
+    WIN: 1,
+    LOSE: -1
 };
 
 const CLASS_MAP = {
@@ -11,12 +14,25 @@ const CLASS_MAP = {
 };
 
 const PATTERN = [
-    [0, 1, 0],
+    [0, 0, 1],
     [0, 2, 0],
     [0, 0, 0],
 ];
 
-let current = SYMBOL.CROSS;
+let current = C.CIRCLE;
+
+
+/**
+ * 交换落子
+ */
+const exchange = (color) => C.CROSS + C.CIRCLE - color;
+
+/**
+ * 克隆方法
+ * @param {*} v 
+ */
+const clone = v => JSON.parse(JSON.stringify(v));
+
 
 ////////////////////////////////
 //
@@ -64,9 +80,8 @@ const isWin = (pattern, color) => {
  * 检查当前棋盘内是否有可以取胜的位置
  */
 const willWin = (pattern, color) => {
-    const clone = v => JSON.parse(JSON.stringify(v));
-    
-    let win = false;
+
+    let win = null;
     for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
             const cell = pattern[i][j];
@@ -75,12 +90,51 @@ const willWin = (pattern, color) => {
                 // 复制一个棋盘，尝试落子
                 const newPattern = clone(pattern);
                 newPattern[i][j] = color;
-                win = isWin(newPattern, color)
-                if (win) return win;
+                if (isWin(newPattern, color)) return [i, j];
             }
         }
     }
     return win;
+}
+
+/**
+ * 判断当前是否有最佳策略：
+ * - 我能赢
+ * - 我不会输
+ * @param {*} pattern 
+ * @param {*} color 
+ * @return {Object} {point, result} result: -1输 0和 1赢 （用对称值来表示输赢，可以通过 - 进行切换
+ */
+const bestChoice = (pattern, color) => {
+    // 选-2表示一个不可能取到的最小值
+    let point, result = -2;
+    if (point = willWin(pattern, color)) {
+        return {
+            point,
+            result: C.WIN
+        }
+    }
+    for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+            if (pattern[i][j]) continue;
+            let newPattern = clone(pattern);
+            // 把当前位置落子后，看对方的最好策略是什么
+            newPattern[i][j] = color;
+            let { result: r } = bestChoice(newPattern, exchange(color));
+            // 对方赢说明我们输，对方输说明我们赢
+            if (-r > result) {
+                result = -r;
+                point = [i, j]
+            }
+        }
+    }
+    return {
+        point,
+        // 如果point不存在说明已经无点可以走了，返回0
+        result: point ? result : C.PEACE
+    }
+
+
 }
 
 ////////////////////////////////
@@ -97,8 +151,8 @@ const willWin = (pattern, color) => {
  */
 const renderCell = (cell, i, j) => {
     const klass =
-        cell === SYMBOL.CROSS ? 'cross' :
-            cell === SYMBOL.CIRCLE ? 'circle' : '';
+        cell === C.CROSS ? 'cross' :
+            cell === C.CIRCLE ? 'circle' : '';
     // 通过class变更落子的文字，通过data-poin记录对应的数据位置
     return `<span class="cell ${klass}" data-point="${i}-${j}"></span>`
 }
@@ -139,11 +193,6 @@ const toggleClass = (cell) => {
     return true;
 }
 
-/**
- * 交换落子
- */
-const exchange = () => (current = SYMBOL.CROSS + SYMBOL.CIRCLE - current);
-
 
 
 ////////////////////////////////
@@ -173,9 +222,9 @@ const move = (ev) => {
                 return;
             }
             // 交换落子
-            exchange();
+            current = exchange(current);
             // 判交换后是否可以胜利
-            if(willWin(PATTERN, current)){
+            if (willWin(PATTERN, current)) {
                 console.log(`${CLASS_MAP[current]}将要赢了`)
             }
         }
@@ -192,6 +241,7 @@ const main = () => {
     const root = document.querySelector('#root');
     render(root);
     addEvent(root);
+    console.log(bestChoice(PATTERN, current));
 }
 
 window.onload = () => {
