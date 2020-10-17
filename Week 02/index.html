@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .map {
+            width: 600px;
+            min-width: 600px;
+            line-height: 0px;
+        }
+        .map .pen {
+            cursor: url(./img/pen.png), default;
+        }
+        .map .eraser{
+            cursor: url(./img/eraser.png), default;
+        }
+        .block {
+            margin: 0;
+            display: inline-block;
+            width:6px;
+            height:6px;
+            box-sizing: border-box;
+            border-right: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+            background: #fff;
+        }
+        .black {
+            background: #000;
+        }
+    </style>
+</head>
+<style>
+
+
+</style>
+<body>
+    <div id="map"></div>
+    <button id="pen">笔刷</button>
+    <button id="eraser">橡皮</button>
+    <button id="reset">重置画布</button>
+</body>
+<script src="./map.js"></script>
+</html>
