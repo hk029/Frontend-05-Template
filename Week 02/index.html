@@ -10,12 +10,6 @@
             min-width: 600px;
             line-height: 0px;
         }
-        .map .pen {
-            cursor: url(./img/pen.png), default;
-        }
-        .map .eraser{
-            cursor: url(./img/eraser.png), default;
-        }
         .block {
             margin: 0;
             display: inline-block;
@@ -41,5 +35,218 @@
     <button id="eraser">橡皮</button>
     <button id="reset">重置画布</button>
 </body>
+<script src="./sorted.js"></script>
+<script src="./util.js"></script>
 <script src="./map.js"></script>
+<script src="./path.js"></script>
+<script>
+//     /**
+//  * 暂停休眠函数
+//  * @param {*} time 休眠时间
+//  */
+// function sleep(time) {
+//     return new Promise((resolve) => {
+//         setTimeout(() => resolve(), time);
+//     })
+// }
+
+// /**
+//  * 通用dom查询方法
+//  * @param {*} query 
+//  */
+// let $ = (query) => {
+//     const _$ = document.querySelectorAll.bind(document);
+//     res = _$(query);
+//     if(res.length === 1) {
+//         return res[0];
+//     }
+//     return res;
+// }
+
+// window._ = {
+//     sleep,
+//     $,
+// }
+
+// /**
+//  * 广度搜索，寻路算法
+//  * @param {Array} map 
+//  * @param {Point} start 
+//  * @param {Point} end 
+//  */
+//  const path = async (map, start, end) => {
+//     const queue = [start];
+
+//     const insertPoint = async ([x, y, path = []]) => {
+//         // 边界条件处理
+//         if(x < 0 || x >= 100 || y < 0 || y >= 100) {
+//             return ;
+//         }
+//         // 计算对应一维数组的位置
+//         const idx = x * 100 + y;
+//         // 如果当前点被block
+//         if (map[idx]) {
+//             return false;
+//         }
+//         map[idx] = 2;
+//         await _.sleep(10);
+//         Array.from(_.$('.block'))[idx].style.backgroundColor = 'green';
+//         // 把当前点还有包含当前点的路径入队列
+//         queue.push([x, y, [...path, [x, y]]]);
+//     }
+
+//     while(queue.length) {
+//         const [x, y, path] = queue.shift();
+//         // 说明找到了，把整个路径输出
+//         if(x === end[0] && y === end[1]) {
+//             console.log(path);
+//             return path;
+//         }
+//         // 
+//         await insertPoint([x+1, y, path]);
+//         await insertPoint([x-1, y, path]);
+//         await insertPoint([x, y+1, path]);
+//         await insertPoint([x, y-1, path]);
+//     }
+//     // 说明没找到
+//     return false;
+// }
+
+// window.path = path;
+// let map = [];
+// // 设置画笔
+// let cursor = '';
+// let mouseDown = false;
+
+// //----------------------------------------------------------------
+// //        工具函数相关
+// //----------------------------------------------------------------
+
+// /**
+//  * 更改当前鼠标类型
+//  * @param {*} type 
+//  */
+// const changeCursor = type => () => {
+//     console.log(_.$('.map'));
+//     _.$('.map').style.cursor = `url(https://img.hksite.cn/${type}.png), default`;
+//     cursor = type;
+// };
+
+
+// //----------------------------------------------------------------
+// //        数据相关
+// //----------------------------------------------------------------
+
+// /**
+//  * 读取地图数据
+//  */
+// const readMap = () => {
+//     let data = localStorage.getItem('map');
+//     map = data ? JSON.parse(data) : new Array(10000).fill(0);
+//     return map;
+// }
+
+// /**
+//  * 写入地图数据
+//  * @param {*} map 
+//  */
+// const writeMap = (map = new Array(10000).fill(0)) => localStorage.setItem('map', JSON.stringify(map));
+
+// /**
+//  * 保存当前数据
+//  */
+// const restoreBlock = () => {
+//     let data = Array.from(document.querySelectorAll('.block')).map(t => t.classList.contains('black'))
+//     writeMap(data);
+// }
+
+// /**
+//  * 重置当前数据
+//  */
+// const reset = () => {
+//     // 用默认值重写数据
+//     writeMap();
+//     renderMap();
+// }
+
+
+// //----------------------------------------------------------------
+// //        事件相关
+// //----------------------------------------------------------------
+
+// /**
+//  * 事件绑定
+//  */
+// const addEvent = () => {
+//     // 按钮事件
+//     const $pen = _.$('#pen');
+//     const $eraser = _.$('#eraser');
+//     const $reset = _.$('#reset');
+//     $pen.onclick = changeCursor('pen');
+//     $eraser.onclick = changeCursor('eraser');
+//     $reset.onclick = reset;
+
+//     // 画图事件
+//     document.addEventListener('mousedown', () => {
+//         mouseDown = true;
+//     });
+//     document.addEventListener('mouseup', () => {
+//         mouseDown = false;
+//         console.log('up');
+//         restoreBlock();
+//     });
+//     document.addEventListener('mousemove', ev => {
+//         const target = ev.target;
+//         console.log('move', cursor, target);
+//         if (target.classList.contains('block') && mouseDown) {
+//             if (cursor === 'pen') {
+//                 target.classList.add('black');
+//             }
+//             if (cursor === 'eraser') {
+//                 target.classList.remove('black');
+//             }
+//         }
+//     })
+// }
+
+// //----------------------------------------------------------------
+// //         渲染相关
+// //----------------------------------------------------------------
+
+// /**
+//  * 渲染一个格子
+//  * @param {Boolean} isBlock 
+//  */
+// const renderBlock = (isBlock) => {
+//     return `<span class="block ${isBlock ? 'black' : ''}"></span>`;
+// }
+
+// /**
+//  * 渲染地图
+//  */
+// const renderMap = () => {
+//     const root = _.$('#map');
+//     // 读取配置
+//     const data = readMap();
+//     root.innerHTML = `
+// <div class="map">
+//     ${data.map(renderBlock).join('')}
+// </div>`;
+//     return root;
+// }
+
+// /**
+//  * 主流程
+//  */
+// const main = () => {
+//     window.onload = () => {
+//         renderMap();
+//         addEvent();
+//     }
+// }
+
+// window.map = map;
+// main();
+
+</script>
 </html>
