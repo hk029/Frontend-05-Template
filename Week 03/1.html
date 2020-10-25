@@ -1,0 +1,28 @@
+<script>
+    const regex = /([0-9\.]+)|([ \t]+)|([\r\n]+)|(\*)|(\/)|(\+)|(\-)/g;
+    const Dict = [
+        '',
+        'Number',
+        'Whitespace',
+        'LineTerminator',
+        '*',
+        '/',
+        '+',
+        '-',
+    ];
+
+    function tokenize(src) {
+        let res = regex.exec(src);
+        while(res) {
+            for(let i = 1;i <= Dict.length; i++) {
+                if(res[i]) {
+                    console.log(Dict[i]);
+                }
+            }
+            res = regex.exec(src);
+        }
+    }
+    tokenize('12 + 2132 * 1232')
+
+
+</script>

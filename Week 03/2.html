@@ -1,0 +1,40 @@
+<script>
+    const regex = /([0-9\.]+)|([ \t]+)|([\r\n]+)|(\*)|(\/)|(\+)|(\-)/g;
+    const Dict = [
+        '',
+        'Number',
+        'Whitespace',
+        'LineTerminator',
+        '*',
+        '/',
+        '+',
+        '-',
+    ];
+
+    function* tokenize(src) {
+        let res, lastIndex, token = {
+            type: null,
+            value: null
+        };
+        while(true) {
+            res = regex.exec(src);
+            lastIndex = regex.lastIndex;
+            // 如果regex.lastIndex - lastIndex > res[0].length 说明有未知格式和内容
+            if(!res || regex.lastIndex - lastIndex > res[0].length) {
+                break;
+            }
+
+            for(let i = 1;i <= Dict.length; i++) {
+                if(res[i]) {
+                    token.type = Dict[i];
+                    token.value = res[i];
+                    yield token;
+                }
+            }
+        }
+    }
+
+    for ( let token of tokenize('12 + 2132 * 1232')) {
+        console.log(token);
+    }
+</script>
