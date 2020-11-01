@@ -1,0 +1,69 @@
+<script>
+    // kmp的回退算法主要是建立PMT
+    const kmpFn = (str, pattern) => {
+        // PMT初始化
+        const table = new Array(pattern.length).fill(0), patternLen = pattern.length;
+        // 从i开始算自重复的数字，repeat表示当前已经匹配的字符数
+        let i = 1, repeatIndex = 0;
+        while(i < patternLen) {
+            // 如果后移动一位发现也是相同的字符
+            if(pattern[i] === pattern[repeatIndex]) {
+                i++;
+                repeatIndex++;
+                table[i] = repeatIndex;
+            } else {
+                // 回退，
+                if(repeatIndex !== 0) {
+                    repeatIndex = table[repeatIndex];
+                } else {
+                    i++;
+                }
+            }
+        }
+        // 如果回退路径为0的时候，需要自增1
+        return (start) => table[start] || start + 1;
+    }
+
+
+    // 默认的BF算法就只用返回start + 1就行了
+    const bfFn = () => (start) => start + 1;
+
+    function findStr(str, pattern, nextFn = bfFn) {
+        const strLen = str.length;
+        const fn = nextFn(str, pattern);
+        let i = 0, j = 0;
+
+        const nextStep = (str, pattern, start) => {
+            const strLen = str.length, patternLen = pattern.length;
+            let i = start, j = 0;
+            // 依次比较所有的位置
+            while(i < strLen && j < patternLen && str[i++] === pattern[j++]);
+            // 如果找到了，说明j到了字串结尾，并且最后一个字符相同（因为不管怎么样都会++），则返回false
+            if(j === patternLen && str[i-1] === pattern[j-1]) {
+                return false;
+            }
+            // 否则返回需要回退的位置, 这里可以修改算法，BF算法就只用返回start + 1就行了
+            return fn(i-1);
+        }
+
+        do {
+            let next = nextStep(str, pattern, i);
+            // 如果不用走下一步，则说明i位置匹配成功
+            if(!next) {
+                return i;
+            }
+            i = next;
+        } while(i < strLen);
+
+        return -1;
+    }
+
+    window.findStr = findStr;
+    window.bfFn = bfFn;
+    window.kmpFn = kmpFn;
+
+    // 使用方法：
+    // findStr('abca', 'ca') 默认采用bfFn
+    // findStr('abca', 'ca', kmpFn) 采用KMP算法
+    // 找到为找到的下标，否则为-1
+</script>

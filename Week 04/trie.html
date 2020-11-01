@@ -1,0 +1,40 @@
+<script>
+// 通过Symbol保证不会占用可用字符
+const $  = Symbol('$');
+
+const trie = {
+    insert(root, word) {
+        let currentRoot = root;
+        // 依次找到每个字符的位置
+        for(let c of word) {
+            if(!currentRoot[c]) {
+                currentRoot[c] = Object.create(null);
+            }
+            currentRoot = currentRoot[c];
+        }
+        // 单词结束了，需要在结尾增加计数
+        currentRoot[$] = currentRoot[$] !== undefined ? currentRoot[$] + 1 : 1;
+    },
+    most(root) {
+        let most = {
+            times: 0,
+            word: ''
+        };
+        const visit = (curRoot, curWord) => {
+            // 查看当前是否有截断，有的话，就直接比较
+            if(curRoot && curRoot[$] && curRoot[$] > most.times) {
+                most.times = curRoot[$];
+                most.word = curWord + key;
+            }
+            for(key in curRoot) {
+                visit(curRoot[key], curWord + key);
+            }
+        }
+        visit(root, '');
+        console.log(most);
+        return most;
+    }
+}
+
+window.trie = trie;
+</script>
