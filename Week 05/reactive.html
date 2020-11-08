@@ -1,0 +1,93 @@
+<input id="r" type="range" min=0 max=255/>
+<input id="g" type="range" min=0 max=255/>
+<input id="b" type="range" min=0 max=255/>
+<div id="block"></div>
+<style>
+    #block {
+        width: 10px;
+        height: 10px;
+        display: inline-block;
+    }
+
+</style>
+<script>
+    const callbacks = new Map();
+    let useReactivties = [];
+    const rgbInput = ['r', 'g', 'b'].map(v => document.querySelector(`#${v}`));
+    const block = document.querySelector('#block');
+    const obj = {
+        r: 1,
+        g: 0,
+        b: 0,
+    }
+
+    const effect = (callback) => {
+        // callbacks.push(callback);
+        // 先调用一下，如果里面有使用对象的属性，则会进入get的注册流程中
+        // 重置一下，重新记录当前callback的属性
+        useReactivties = [];
+        callback();
+        
+        for(let reactivity of useReactivties) {
+            const [obj, prop] = reactivity; 
+            // 一个对象可能被多次注册
+            if(!callbacks.has(obj)) {
+                callbacks.set(obj, new Map());
+            }
+            // 一个属性也可能被多次注册
+            if(!callbacks.get(obj).has(prop)) {
+                callbacks.get(obj).set(prop, []);
+            }
+            // 把对应对象的对应属性添加callback
+            callbacks.get(obj).get(prop).push(callback);
+
+        }
+    }
+
+    const reactive = obj => {
+        return new Proxy(obj, {
+            set(obj, prop, val) {
+                // 实际设置属性值
+                obj[prop] = val;
+                // 其他操作
+                if(callbacks.get(obj) && callbacks.get(obj).get(prop)) {
+                    const calls = callbacks.get(obj).get(prop);
+                    for(let callback of calls) {
+                        callback();
+                    }
+                }
+                return obj[prop];
+            },
+            get(obj, prop) {
+                // 对于没有注册的属性，进行注册操作
+                useReactivties.push([obj, prop]);
+                return obj[prop];
+            }
+
+        })
+
+    }
+
+    let color = reactive(obj);
+
+    effect(() => {
+        rgbInput[0].value = color.r;
+    });
+    effect(() => {
+        rgbInput[1].value = color.g;
+    });
+    effect(() => {
+        rgbInput[2].value = color.b;
+    });
+    effect(() => {
+        console.log(color);
+        block.style.background = `rgb(${color.r} ${color.g} ${color.b})`;
+    });
+
+    rgbInput[0].addEventListener('input', event => color.r = Number(event.target.value));
+    rgbInput[1].addEventListener('input', event => color.g = Number(event.target.value));
+    rgbInput[2].addEventListener('input', event => color.b = Number(event.target.value));
+    
+
+
+</script>

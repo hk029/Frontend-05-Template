@@ -1,0 +1,41 @@
+<script>
+    const callbacks = [];
+    
+    const obj = {
+        a: 1,
+        b: 2
+    }
+
+    const effect = (callback) => {
+        callbacks.push(callback);
+    }
+
+    effect((obj) => {
+        console.log('a', obj.a)
+    })
+
+    const reactive = obj => {
+        return new Proxy(obj, {
+            set(obj, prop, val) {
+                // 实际设置属性值
+                obj[prop] = val;
+                // 其他操作
+                for(let callback of callbacks) {
+                    callback(obj);
+                }
+                console.log(obj, prop, val);
+                return obj[prop];
+            },
+            get(obj, prop) {
+                // 其他操作
+                return obj[prop];
+            }
+
+        })
+
+    }
+
+    let po = reactive(obj);
+
+
+</script>

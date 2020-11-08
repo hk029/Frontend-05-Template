@@ -1,0 +1,108 @@
+<div id="container">测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测测测测测测测测测测测测测测测测测测测测测测测测测测测测测测测测测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+试文字 测试文字 测试文字 测试文字 测试文字 测试文字 测试文字 
+</div>
+<div id="drag"></div>
+<style>
+    #drag {
+        width: 100px;
+        height: 100px;
+        display: inline-block;
+        background: red;
+    }
+</style>
+<script>
+    let dragable = document.querySelector('#drag');
+    let container = document.querySelector('#container');
+    const ranges = [];
+    // 需要注意如果不设置baseX和baseY，则会导致第二次移动偏移量计算错误
+    let base = {
+        x : 0,
+        y : 0
+    }
+
+    const getNearest = (x,y) => {
+        let min = Infinity;
+        let nearst = null;
+
+        for(let range of ranges) {
+            let rect = range.getBoundingClientRect();
+            // ** 乘方运算
+            let distance = (rect.x - x) **2 + (rect.y - y) **2;
+            if(distance < min) {
+                nearst = range;
+                min = distance;
+            }
+        }
+        return nearst;
+    }
+
+    dragable.addEventListener('mousedown', event => {
+        // 不加start点那么每次点击的时候，滑块（0，0）会自动跳到鼠标的位置
+        let start = {
+            x : event.clientX,
+            y : event.clientY,
+        }
+
+        let up = e => {
+            base.x = base.x + e.clientX - start.x;
+            base.y = base.y + e.clientY - start.y;
+            document.removeEventListener('mousemove', move);
+            document.removeEventListener('mouseup', up);
+        }
+
+        let move = e => {
+            const range = getNearest(e.clientX, e.clientY);
+            // 不需要移除，insertNode的方法会默认移除原来的元素
+            range.insertNode(dragable);
+            // dragable.style.transform = `translate(${base.x + e.clientX - start.x}px, ${base.y + e.clientY - start.y}px)`;
+        }
+
+        // 如果不在dragble中写，那会触发很多无用的事件
+        document.addEventListener('mousemove', move)
+        document.addEventListener('mouseup', up)
+    })
+
+
+    for(let i = 0; i < container.childNodes[0].textContent.length; i+=3) {
+        let range = document.createRange();
+        range.setStart(container.childNodes[0], i);
+        range.setEnd(container.childNodes[0], i); 
+        ranges.push(range); 
+    }
+
+    //阻止选中的默认操作
+    document.addEventListener('selectstart', e => e.preventDefault());
+
+       
+</script>
