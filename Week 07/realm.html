@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Realm</title>
+</head>
+
+<body>
+    <div id="mountNode"></div>
+    <script>/*Fixing iframe window.innerHeight 0 issue in Safari*/document.body.clientHeight;</script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g6-3.1.1/build/g6.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/assets/lib/jquery-3.2.1.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.hierarchy-0.5.0/build/hierarchy.js"></script>
+    <script>
+        const data = {
+            "id": "Intrinsic Objects",
+            "children": [
+                {
+                "id": "[[Intrinsic]]",
+                "children": [{"id":"AggregateError"},{"id":"Array"},{"id":"ArrayBuffer"},{"id":"Atomics"},{"id":"BigInt"},{"id":"BigInt64Array"},{"id":"BigUint64Array"},{"id":"Boolean"},{"id":"DataView"},{"id":"Date"},{"id":"Error"},{"id":"EvalError"},{"id":"FinalizationRegistry"},{"id":"Float32Array"},{"id":"Float64Array"},{"id":"Function"},{"id":"Int8Array"},{"id":"Int16Array"},{"id":"Int32Array"},{"id":"JSON"},{"id":"Map"},{"id":"Math"},{"id":"Number"},{"id":"Object"},{"id":"Promise"},{"id":"Proxy"},{"id":"RangeError"},{"id":"ReferenceError"},{"id":"Reflect"},{"id":"RegExp"},{"id":"Set"},{"id":"SharedArrayBuffer"},{"id":"String"},{"id":"Symbol"},{"id":"SyntaxError"},{"id":"TypeError"},{"id":"Uint8Array"},{"id":"Uint8ClampedArray"},{"id":"Uint16Array"},{"id":"Uint32Array"},{"id":"URIError"},{"id":"WeakMap"},{"id":"WeakRef"},{"id":"WeakSet"}]
+            },
+                {
+                "id": "[[GlobalObject]]",
+                "children": [{"id": "Global"}]
+            },
+                {
+                "id": "[[GlobalEnv]]"
+            },
+                {
+                "id": "[[TemplateMap]]"
+            },
+                {
+                "id": "[[HostDefined]]"
+            }
+        ]
+           
+        }
+      var graph = new G6.TreeGraph({
+      container: 'mountNode',
+      width: window.innerWidth,
+      height: window.innerHeight,
+      pixelRatio: 2,
+      modes: {
+        default: [{
+          type: 'collapse-expand',
+          onChange: function onChange(item, collapsed) {
+            var data = item.get('model').data;
+            data.collapsed = collapsed;
+            return true;
+          }
+      }, 'drag-canvas', 'zoom-canvas']
+      },
+      defaultNode: {
+        size: 16,
+        anchorPoints: [[0, 0.5], [1, 0.5]],
+        style: {
+          fill: '#40a9ff',
+          stroke: '#096dd9'
+        }
+      },
+      defaultEdge: {
+        shape: 'cubic-horizontal',
+        style: {
+          stroke: '#A3B1BF'
+        }
+      },
+      layout: {
+        type: 'compactBox',
+        direction: 'LR',
+        getId: function getId(d) {
+          return d.id;
+        },
+        getHeight: function getHeight() {
+          return 16;
+        },
+        getWidth: function getWidth() {
+          return 16;
+        },
+        getVGap: function getVGap() {
+          return 10;
+        },
+        getHGap: function getHGap() {
+          return 100;
+        }
+      }
+    });
+
+    graph.node(function(node) {
+      return {
+        size: 26,
+        style: {
+          fill: '#40a9ff',
+          stroke: '#096dd9'
+        },
+        label: node.id,
+        labelCfg: {
+          position: node.children && node.children.length > 0 ? 'left' : 'right'
+        }
+      };
+    });
+
+    graph.data(data);
+    graph.render();
+    graph.fitView();;
+    </script>
+</body>
+
+</html>
